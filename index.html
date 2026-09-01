@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThermoQuest — Thermodynamics Memory Game</title>
+
+<style>
+:root{
+  --bg:#090d16;
+  --panel:#111827;
+  --panel2:#172033;
+  --line:#263247;
+  --text:#f8fafc;
+  --muted:#94a3b8;
+  --blue:#38bdf8;
+  --purple:#a78bfa;
+  --green:#4ade80;
+  --red:#fb7185;
+  --yellow:#facc15;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at top right,#172554 0,transparent 30%),
+    linear-gradient(180deg,#090d16,#0f172a);
+  color:var(--text);
+  min-height:100vh;
+}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  backdrop-filter:blur(14px);
+  background:rgba(9,13,22,.88);
+  border-bottom:1px solid var(--line);
+}
+
+.header-inner{
+  max-width:1250px;
+  margin:auto;
+  padding:18px 22px;
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:center;
+}
+
+.logo h1{
+  margin:0;
+  font-size:25px;
+}
+
+.logo p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.stats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.stat{
+  padding:7px 11px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  font-size:13px;
+}
+
+main{
+  max-width:1250px;
+  margin:auto;
+  padding:22px;
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:18px;
+}
+
+nav{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+nav button{
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:12px 13px;
+  background:var(--panel);
+  color:var(--text);
+  cursor:pointer;
+  text-align:left;
+  font-size:14px;
+}
+
+nav button:hover,
+nav button.active{
+  background:var(--panel2);
+  border-color:var(--blue);
+}
+
+section{
+  display:none;
+}
+
+section.active{
+  display:block;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+
+.card{
+  background:rgba(17,24,39,.95);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 16px 40px rgba(0,0,0,.16);
+}
+
+.card h2,
+.card h3{
+  margin-top:0;
+}
+
+.muted{
+  color:var(--muted);
+}
+
+.big{
+  font-size:36px;
+  font-weight:900;
+}
+
+button{
+  font:inherit;
+}
+
+.btn{
+  border:none;
+  border-radius:10px;
+  padding:11px 15px;
+  background:var(--blue);
+  color:#04131c;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.btn.secondary{
+  background:#263247;
+  color:white;
+}
+
+.btn.good{
+  background:var(--green);
+}
+
+.btn.bad{
+  background:var(--red);
+}
+
+.btn.yellow{
+  background:var(--yellow);
+}
+
+.row{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.progress{
+  height:10px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  overflow:hidden;
+  background:#060a11;
+}
+
+.progress > div{
+  height:100%;
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+}
+
+.challenge{
+  margin-top:15px;
+  background:#0b1220;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:20px;
+}
+
+.choice{
+  width:100%;
+  display:block;
+  padding:12px;
+  margin:8px 0;
+  text-align:left;
+  border:1px solid var(--line);
+  background:#172033;
+  color:white;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.choice:hover{
+  border-color:var(--blue);
+  transform:translateY(-1px);
+}
+
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:#090d16;
+  color:white;
+  font:inherit;
+}
+
+textarea{
+  min-height:120px;
+  resize:vertical;
+}
+
+.teacher{
+  border-left:4px solid var(--purple);
+}
+
+.warning{
+  border-left:4px solid var(--yellow);
+}
+
+.flashcard{
+  min-height:270px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  cursor:pointer;
+  font-size:22px;
+  line-height:1.5;
+}
+
+.flashcard small{
+  display:block;
+  margin-top:14px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.feedback{
+  margin-top:12px;
+  border-radius:12px;
+  padding:14px;
+  background:#09121d;
+  border:1px solid var(--line);
+}
+
+.topic{
+  margin-bottom:14px;
+}
+
+.topic-header{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  background:#1e293b;
+  border:1px solid var(--line);
+}
+
+.world{
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  margin-bottom:10px;
+  background:#101827;
+}
+
+.world strong{
+  color:var(--blue);
+}
+
+.formula{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:21px;
+  padding:14px;
+  background:#090d16;
+  border-radius:10px;
+  border:1px solid var(--line);
+}
+
+@media(max-width:850px){
+  main{
+    grid-template-columns:1fr;
+  }
+
+  nav{
+    flex-direction:row;
+    overflow:auto;
+  }
+
+  nav button{
+    white-space:nowrap;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .header-inner{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="header-inner">
+
+<div class="logo">
+<h1>🔥 ThermoQuest</h1>
+<p>Learn thermo well enough that lecture starts sounding familiar.</p>
+</div>
+
+<div class="stats">
+<div class="stat">Level <b id="level">1</b></div>
+<div class="stat">XP <b id="xp">0</b></div>
+<div class="stat">🔥 <b id="streak">0</b></div>
+<div class="stat">Mastery <b id="mastery">0%</b></div>
+<div class="stat">Mistakes <b id="mistakes">0</b></div>
+</div>
+
+</div>
+</header>
+
+<main>
+
+<nav>
+<button class="active" data-section="home">🏠 Mission Control</button>
+<button data-section="translator">🎧 Professor Translator</button>
+<button data-section="flashcards">🧠 Flashcards</button>
+<button data-section="recall">✍️ Recall Mode</button>
+<button data-section="quiz">⚡ Rapid Quiz</button>
+<button data-section="teach">🗣 Teach It</button>
+<button data-section="formula">⚙️ Formula Forge</button>
+<button data-section="boss">👹 Exam Boss</button>
+<button data-section="mistake">🚨 Mistake Vault</button>
+<button data-section="masteryMap">📈 Mastery Map</button>
+</nav>
+
+<div>
+
+<section id="home" class="active">
+
+<div class="grid">
+
+<div class="card">
+<div class="muted">Your Level</div>
+<div class="big" id="homeLevel">1</div>
+
+<div class="progress">
+<div id="xpBar"></div>
+</div>
+
+<p class="muted">Every 100 XP = one level.</p>
+</div>
+
+<div class="card">
+<div class="muted">Weakest Concept</div>
+<h3 id="weakTopic">Loading...</h3>
+<button class="btn" onclick="go('recall')">Train it</button>
+</div>
+
+<div class="card">
+<div class="muted">Lecture Goal</div>
+<h3>Recognition before confusion</h3>
+<p class="muted">
+When your professor says a thermo phrase, your brain should already know what family of ideas it belongs to.
+</p>
+</div>
+
+</div>
+
+<div class="card teacher" style="margin-top:14px">
+
+<h3>🎧 Today's Lecture Warm-Up</h3>
+
+<p>
+Before class, spend about 15–20 minutes doing:
+</p>
+
+<div class="row">
+<button class="btn secondary" onclick="go('translator')">5 min Translator</button>
+<button class="btn secondary" onclick="go('recall')">5 min Recall</button>
+<button class="btn secondary" onclick="go('formula')">5 min Formulas</button>
+<button class="btn secondary" onclick="go('boss')">1 Boss</button>
+</div>
+
+</div>
+
+<div class="card" style="margin-top:14px">
+
+<h3>🧠 Thermodynamics Brain Map</h3>
+
+<div class="world">
+<strong>WORLD 1 — What am I looking at?</strong><br>
+System → surroundings → boundary → closed system → control volume
+</div>
+
+<div class="world">
+<strong>WORLD 2 — How do I describe it?</strong><br>
+Properties → intensive → extensive → specific → state → equilibrium
+</div>
+
+<div class="world">
+<strong>WORLD 3 — What is it doing?</strong><br>
+Process → cycle → steady → transient → quasi-equilibrium
+</div>
+
+<div class="world">
+<strong>WORLD 4 — Temperature & Pressure</strong><br>
+Kelvin → Rankine → absolute pressure → gauge pressure → manometers
+</div>
+
+<div class="world">
+<strong>WORLD 5 — Where is the energy?</strong><br>
+Internal energy → kinetic energy → potential energy → heat → work
+</div>
+
+<div class="world">
+<strong>WORLD 6 — Energy moving through devices</strong><br>
+Mass flow → control volumes → efficiency
+</div>
+
+<div class="world">
+<strong>WORLD 7 — Water gets weird</strong><br>
+Pure substance → saturation → mixture → latent heat → critical point
+</div>
+
+</div>
+
+</section>
+
+<section id="translator">
+
+<div class="card teacher">
+
+<h2>🎧 Professor Translator</h2>
+
+<p class="muted">
+Train the phrases your professor is likely to say during lecture.
+</p>
+
+<div id="translatorBox" class="challenge"></div>
+
+<button class="btn" onclick="newTranslator()">New lecture phrase</button>
+
+</div>
+
+</section>
+
+<section id="flashcards">
+
+<div class="card">
+
+<div class="row">
+
+<div style="flex:1">
+<h2>🧠 Flashcard Arena</h2>
+<p class="muted">Try to answer before flipping.</p>
+</div>
+
+<select id="flashTopic" style="max-width:240px"></select>
+
+</div>
+
+<div id="flashCard" class="challenge flashcard" onclick="flipCard()"></div>
+
+<div class="row" style="justify-content:center;margin-top:12px">
+
+<button class="btn bad" onclick="gradeFlash(0)">Again</button>
+<button class="btn yellow" onclick="gradeFlash(1)">Hard</button>
+<button class="btn good" onclick="gradeFlash(2)">I knew it</button>
+
+</div>
+
+</div>
+
+</section>
+
+<section id="recall">
+
+<div class="card">
+
+<h2>✍️ No-Hint Recall Mode</h2>
+
+<p class="muted">
+No multiple choice. Pull the idea out of your own brain.
+</p>
+
+<div id="recallBox" class="challenge"></div>
+
+</div>
+
+</section>
+
+<section id="quiz">
+
+<div class="card">
+
+<h2>⚡ Rapid Quiz</h2>
+
+<p class="muted">
+Recognition training. Correct answers give XP; mistakes enter the vault.
+</p>
+
+<div id="quizBox"></div>
+
+<button id="quizStart" class="btn" onclick="startQuiz()">Start 10 Questions</button>
+
+</div>
+
+</section>
+
+<section id="teach">
+
+<div class="card">
+
+<h2>🗣 Teach-It Mode</h2>
+
+<p class="muted">
+Explain thermo in normal language. If you can teach it, you understand it.
+</p>
+
+<div id="teachBox" class="challenge"></div>
+
+</div>
+
+</section>
+
+<section id="formula">
+
+<div class="card">
+
+<h2>⚙️ Formula Forge</h2>
+
+<p class="muted">
+Learn both the equation and the clue that tells you when to use it.
+</p>
+
+<div id="formulaBox" class="challenge"></div>
+
+<button class="btn" onclick="newFormula()">Next Formula</button>
+
+</div>
+
+</section>
+
+<section id="boss">
+
+<div class="card">
+
+<h2>👹 Exam Boss</h2>
+
+<p class="muted">
+Mixed conceptual + numerical problems.
+</p>
+
+<div id="bossBox" class="challenge"></div>
+
+<button class="btn" onclick="newBoss()">New Boss</button>
+
+</div>
+
+</section>
+
+<section id="mistake">
+
+<div class="card warning">
+
+<h2>🚨 Mistake Vault</h2>
+
+<p class="muted">
+Anything you miss gets stored here. Beat the questions again to clear them.
+</p>
+
+<div id="mistakeBox"></div>
+
+</div>
+
+</section>
+
+<section id="masteryMap">
+
+<div class="card">
+
+<h2>📈 Mastery Map</h2>
+
+<p class="muted">
+You cannot fake mastery by recognizing answers. Your scores rise from recall, quizzes, flashcards and bosses.
+</p>
+
+<div id="masteryList"></div>
+
+</div>
+
+</section>
+
+</div>
+</main>
+
+<script>
+
+const TOPICS = {
+systems:"Systems & Boundaries",
+properties:"Properties",
+states:"States & Processes",
+units:"Units & Dimensions",
+temperature:"Temperature",
+pressure:"Pressure",
+energy:"Energy",
+heatwork:"Heat & Work",
+flow:"Flow & Mass Rate",
+pure:"Pure Substances",
+efficiency:"Efficiency"
+};
+
+const flashcards = [
+
+["systems",
+"What is a system?",
+"The quantity of matter or region in space selected for study."],
+
+["systems",
+"What are surroundings?",
+"Everything outside the system."],
+
+["systems",
+"What is a boundary?",
+"The real or imaginary surface separating a system from its surroundings."],
+
+["systems",
+"What is a closed system?",
+"A fixed mass. Mass cannot cross the boundary, but energy may."],
+
+["systems",
+"What is an open system?",
+"A control volume where mass and energy can cross the control surface."],
+
+["properties",
+"What is an intensive property?",
+"A property independent of system size, such as temperature or pressure."],
+
+["properties",
+"What is an extensive property?",
+"A property that depends on how much matter is present, such as mass or total volume."],
+
+["properties",
+"What is a specific property?",
+"An extensive property divided by mass."],
+
+["properties",
+"What is density?",
+"Mass divided by volume: rho = m/V."],
+
+["properties",
+"What is specific volume?",
+"Volume per unit mass: v = V/m = 1/rho."],
+
+["states",
+"What is a thermodynamic state?",
+"The condition of a system described by its properties."],
+
+["states",
+"What is equilibrium?",
+"A condition with no unbalanced driving forces causing change."],
+
+["states",
+"What is the state postulate?",
+"Two independent intensive properties fix the state of a simple compressible system."],
+
+["states",
+"What is a process?",
+"A change from one equilibrium state to another."],
+
+["states",
+"What is a cycle?",
+"A sequence of processes that eventually returns to the initial state."],
+
+["states",
+"What is quasi-equilibrium?",
+"An idealized very slow process that keeps the system close to equilibrium."],
+
+["temperature",
+"What is the Zeroth Law?",
+"If two systems are each in thermal equilibrium with a third, they are in thermal equilibrium with each other."],
+
+["temperature",
+"Convert Celsius to Kelvin.",
+"K = degrees C + 273.15."],
+
+["temperature",
+"Convert Fahrenheit to Rankine.",
+"R = degrees F + 459.67."],
+
+["temperature",
+"Why is a Celsius temperature change equal numerically to a Kelvin temperature change?",
+"They have the same size degree; Kelvin is simply offset by 273.15."],
+
+["pressure",
+"What is pressure?",
+"Normal force per unit area: P = F/A."],
+
+["pressure",
+"Absolute versus gauge pressure?",
+"Absolute pressure is measured from vacuum. Gauge pressure is measured relative to atmospheric pressure."],
+
+["pressure",
+"What is the gauge pressure equation?",
+"P_gauge = P_absolute - P_atmospheric."],
+
+["pressure",
+"What is the hydrostatic pressure relationship?",
+"Delta P = rho g Delta h."],
+
+["pressure",
+"What does pressure do as you move deeper into a static fluid?",
+"It increases."],
+
+["energy",
+"What makes up total thermodynamic energy?",
+"E = U + KE + PE."],
+
+["energy",
+"What is kinetic energy?",
+"KE = 1/2 m V squared."],
+
+["energy",
+"What is potential energy?",
+"PE = m g z."],
+
+["energy",
+"What is internal energy?",
+"Microscopic molecular energy inside the substance."],
+
+["heatwork",
+"What is heat?",
+"Energy crossing a system boundary because of a temperature difference."],
+
+["heatwork",
+"What is work?",
+"Energy transfer across a boundary by a mechanism other than temperature difference."],
+
+["heatwork",
+"Three heat transfer modes?",
+"Conduction, convection and radiation."],
+
+["flow",
+"What is the mass flow rate equation?",
+"m-dot = rho A V."],
+
+["flow",
+"What is conserved through a steady-flow device?",
+"Mass flow rate."],
+
+["pure",
+"What is a pure substance?",
+"A substance having fixed chemical composition throughout."],
+
+["pure",
+"What is saturated liquid?",
+"Liquid that is just about to begin vaporizing."],
+
+["pure",
+"What is saturated vapor?",
+"Vapor that is just about to begin condensing."],
+
+["pure",
+"What is latent energy?",
+"Energy involved in a phase change without changing temperature."],
+
+["pure",
+"What is the critical point?",
+"The state where the distinction between saturated liquid and saturated vapor disappears."],
+
+["efficiency",
+"What is efficiency?",
+"Desired output divided by required input."],
+
+["efficiency",
+"What happens to efficiencies for devices in series?",
+"They multiply: eta overall equals eta1 times eta2 times eta3."
+]
+
+];
+
+const translators = [
+
+{
+topic:"systems",
+phrase:"Let's draw a control surface around the turbine.",
+answer:"Think OPEN SYSTEM / CONTROL VOLUME. Mass crosses the boundary, so look for inlet and outlet properties and mass flow."
+},
+
+{
+topic:"systems",
+phrase:"No mass crosses the boundary.",
+answer:"Think CLOSED SYSTEM or CONTROL MASS."
+},
+
+{
+topic:"states",
+phrase:"Assume the process is quasi-static.",
+answer:"Think QUASI-EQUILIBRIUM: the process happens slowly enough that the system stays near equilibrium."
+},
+
+{
+topic:"states",
+phrase:"The device operates at steady state.",
+answer:"Think: properties at a fixed location do not change with time."
+},
+
+{
+topic:"properties",
+phrase:"Give the value per unit mass.",
+answer:"Think SPECIFIC PROPERTY. Divide the extensive property by mass."
+},
+
+{
+topic:"pressure",
+phrase:"The pressure shown on the gauge is...",
+answer:"Think GAUGE PRESSURE, not absolute pressure. Use Pabs = Pgauge + Patm."
+},
+
+{
+topic:"pressure",
+phrase:"Moving downward through the liquid...",
+answer:"Think pressure INCREASES. Use Delta P = rho g Delta h."
+},
+
+{
+topic:"temperature",
+phrase:"Use absolute temperature.",
+answer:"Think KELVIN or RANKINE. Do not plug Celsius or Fahrenheit directly into equations requiring absolute temperature."
+},
+
+{
+topic:"flow",
+phrase:"Fluid enters through this pipe at velocity V.",
+answer:"Think MASS FLOW RATE: m-dot = rho A V."
+},
+
+{
+topic:"energy",
+phrase:"Neglect changes in elevation and velocity.",
+answer:"Think PE and KE changes are approximately zero, simplifying the energy equation."
+},
+
+{
+topic:"heatwork",
+phrase:"Energy crosses because the surroundings are hotter.",
+answer:"Think HEAT transfer."
+},
+
+{
+topic:"heatwork",
+phrase:"The shaft turns the compressor.",
+answer:"Think WORK transfer."
+},
+
+{
+topic:"pure",
+phrase:"The water is just beginning to boil.",
+answer:"Think SATURATED LIQUID."
+},
+
+{
+topic:"pure",
+phrase:"The final drop of liquid has just vaporized.",
+answer:"Think SATURATED VAPOR."
+},
+
+{
+topic:"pure",
+phrase:"Heat is added but temperature stays constant.",
+answer:"Think PHASE CHANGE and LATENT ENERGY."
+}
+
+];
+
+const recallQuestions = [
+
+{
+topic:"flow",
+prompt:"Type the mass flow rate equation.",
+answers:["rhoav","ρav","rho a v","m-dot=rhoav","mdot=rhoav"],
+show:"ṁ = ρAV"
+},
+
+{
+topic:"pressure",
+prompt:"Type the basic pressure equation.",
+answers:["f/a","p=f/a","force/area","force divided by area"],
+show:"P = F/A"
+},
+
+{
+topic:"pressure",
+prompt:"Type the hydrostatic pressure-change equation.",
+answers:["rho g h","ρgh","dp=rho g h","deltap=rhogh","delta p=rho g delta h"],
+show:"ΔP = ρgΔh"
+},
+
+{
+topic:"energy",
+prompt:"Type the equation for total energy.",
+answers:["u+ke+pe","e=u+ke+pe","u ke pe"],
+show:"E = U + KE + PE"
+},
+
+{
+topic:"energy",
+prompt:"Type the kinetic energy equation.",
+answers:["1/2mv2","1/2 m v2","0.5mv2","ke=1/2mv2"],
+show:"KE = ½mV²"
+},
+
+{
+topic:"energy",
+prompt:"Type the potential energy equation.",
+answers:["mgz","pe=mgz","m g z"],
+show:"PE = mgz"
+},
+
+{
+topic:"properties",
+prompt:"Density equals mass divided by what?",
+answers:["volume","v"],
+show:"ρ = m / V"
+},
+
+{
+topic:"properties",
+prompt:"Specific volume is the inverse of what property?",
+answers:["density","rho","ρ"],
+show:"v = 1/ρ"
+},
+
+{
+topic:"temperature",
+prompt:"Type the Celsius-to-Kelvin relationship.",
+answers:["c+273.15","k=c+273.15","celsius+273.15"],
+show:"K = °C + 273.15"
+},
+
+{
+topic:"pressure",
+prompt:"Gauge pressure equals absolute pressure minus what?",
+answers:["atmospheric pressure","atmosphere","patm","p atm"],
+show:"Pgauge = Pabsolute − Patm"
+}
+
+];
+
+const quizQuestions = [
+
+{
+topic:"systems",
+q:"Steam continuously enters and leaves a turbine. Best model?",
+choices:["Closed system","Control volume","Isolated system","Control mass"],
+answer:1
+},
+
+{
+topic:"properties",
+q:"Which property is intensive?",
+choices:["Mass","Total energy","Temperature","Total volume"],
+answer:2
+},
+
+{
+topic:"states",
+q:"A system returns to its starting state after several processes. This is:",
+choices:["State postulate","Cycle","Transient flow","Phase equilibrium"],
+answer:1
+},
+
+{
+topic:"temperature",
+q:"A temperature rises by 20°C. What is the Kelvin temperature change?",
+choices:["293.15 K","20 K","253.15 K","36 K"],
+answer:1
+},
+
+{
+topic:"pressure",
+q:"Pressure in a stationary liquid generally _____ with depth.",
+choices:["decreases","increases","becomes zero","never changes"],
+answer:1
+},
+
+{
+topic:"pressure",
+q:"Gauge pressure is measured relative to:",
+choices:["absolute vacuum","critical pressure","atmospheric pressure","saturation pressure"],
+answer:2
+},
+
+{
+topic:"energy",
+q:"Total thermodynamic energy contains:",
+choices:["U only","KE only","U + KE + PE","Q + W"],
+answer:2
+},
+
+{
+topic:"heatwork",
+q:"Energy crosses a boundary solely because of temperature difference. This is:",
+choices:["Heat","Work","Internal energy","Mass transfer"],
+answer:0
+},
+
+{
+topic:"flow",
+q:"Which quantity must obey conservation of mass?",
+choices:["Volume flow rate","Mass flow rate","Velocity","Density"],
+answer:1
+},
+
+{
+topic:"pure",
+q:"Water just beginning to boil is:",
+choices:["Superheated vapor","Saturated liquid","Saturated vapor","Compressed gas"],
+answer:1
+},
+
+{
+topic:"pure",
+q:"During a constant-pressure phase change, added energy mainly changes:",
+choices:["Temperature","Chemical identity","Phase","Gravity"],
+answer:2
+},
+
+{
+topic:"efficiency",
+q:"A 90% efficient motor drives an 80% efficient device. Overall efficiency?",
+choices:["170%","85%","72%","90%"],
+answer:2
+}
+
+];
+
+const teachQuestions = [
+
+["systems",
+"Explain the difference between a closed system and an open system like you're explaining it to a freshman.",
+"A closed system keeps the same mass. An open system allows mass to flow across its boundary."],
+
+["properties",
+"Explain intensive versus extensive properties without using textbook language.",
+"Intensive properties don't care how much stuff you have. Extensive properties grow or shrink when the amount of stuff changes."],
+
+["states",
+"Why do engineers care about equilibrium?",
+"At equilibrium the system properties are stable and meaningful, allowing the state to be defined reliably."],
+
+["pressure",
+"Explain why pressure increases as you go deeper underwater.",
+"The fluid above you has weight. Going deeper means more fluid weight is pressing down."],
+
+["heatwork",
+"Explain the difference between heat and internal energy.",
+"Internal energy belongs to the system. Heat is energy while it is crossing the boundary because of a temperature difference."],
+
+["pure",
+"Explain why boiling water can receive energy without getting hotter.",
+"The energy is being used to change liquid molecules into vapor, so it becomes latent energy rather than increasing temperature."],
+
+["flow",
+"Explain why mass flow can stay constant even when volume flow changes.",
+"If density changes, the same mass can occupy different amounts of volume."]
+];
+
+const formulas = [
+
+["Density","ρ = m / V","Use when the problem gives mass and volume or asks how tightly matter is packed."],
+
+["Specific Volume","v = V / m = 1 / ρ","Use when thermo tables or problems describe volume per unit mass."],
+
+["Pressure","P = F / A","Use when a normal force acts over an area."],
+
+["Hydrostatic Pressure","ΔP = ρgΔh","Use when pressure changes because you move vertically through a static fluid."],
+
+["Mass Flow Rate","ṁ = ρAV","Use for fluid flowing through an inlet, outlet, pipe or duct."],
+
+["Kinetic Energy","KE = ½mV²","Use when energy comes from bulk motion."],
+
+["Potential Energy","PE = mgz","Use when elevation matters."],
+
+["Total Energy","E = U + KE + PE","Use when accounting for the energy stored in a system."],
+
+["Efficiency","η = useful output / required input","Use when comparing useful energy or power produced with energy or power supplied."],
+
+["Series Efficiency","ηoverall = η1η2η3...","Use when energy passes through multiple conversion devices."]
+];
+
+const bosses = [
+
+{
+topic:"flow",
+title:"Duct Flow",
+text:"Air has density 1.2 kg/m³ and enters a 0.25 m² duct at 8 m/s. Find mass flow rate.",
+choices:["0.375 kg/s","2.4 kg/s","9.6 kg/s","38.4 kg/s"],
+answer:1,
+why:"Use ṁ = ρAV. 1.2 × 0.25 × 8 = 2.4 kg/s."
+},
+
+{
+topic:"energy",
+title:"Moving Mass",
+text:"A 10 kg object moves at 6 m/s. Find kinetic energy.",
+choices:["30 J","60 J","180 J","360 J"],
+answer:2,
+why:"KE = ½mV² = 0.5 × 10 × 6² = 180 J."
+},
+
+{
+topic:"pressure",
+title:"Fluid Column",
+text:"A static fluid problem gives density, gravity and a vertical height difference. Which relationship should immediately come to mind?",
+choices:["ṁ = ρAV","ΔP = ρgΔh","KE = ½mV²","η = output/input"],
+answer:1,
+why:"Vertical pressure change in a static constant-density fluid uses ΔP = ρgΔh."
+},
+
+{
+topic:"systems",
+title:"Turbine Analysis",
+text:"Steam enters, spins a turbine and exits continuously. What should you identify first?",
+choices:["It must be a closed system","It is an open system/control volume","Mass cannot cross the boundary","Temperature must be constant"],
+answer:1,
+why:"A turbine has mass entering and leaving, so it is modeled as a control volume."
+},
+
+{
+topic:"pure",
+title:"Boiling Water",
+text:"Water is being heated at constant pressure. Its temperature stops rising while it boils. Where is the added energy going?",
+choices:["Into kinetic energy","Into elevation","Into latent phase-change energy","The energy disappears"],
+answer:2,
+why:"During the phase change the energy converts liquid into vapor instead of raising temperature."
+}
+
+];
+
+let state = JSON.parse(localStorage.getItem("thermoquest_v2") || "{}");
+
+state.xp ??= 0;
+state.streak ??= 0;
+state.mistakes ??= [];
+state.mastery ??= Object.fromEntries(
+Object.keys(TOPICS).map(k => [k,25])
+);
+
+let flashIndex = 0;
+let flashFlipped = false;
+let currentTranslator;
+let currentRecall;
+let currentTeach;
+let currentFormula;
+let currentBoss;
+let quizRun=[];
+let quizIndex=0;
+let quizScore=0;
+
+function save(){
+localStorage.setItem("thermoquest_v2",JSON.stringify(state));
+renderStats();
+renderMastery();
+renderMistakes();
+}
+
+function bump(topic,amount){
+state.mastery[topic]=Math.max(
+0,
+Math.min(100,state.mastery[topic]+amount)
+);
+}
+
+function addMistake(type,data){
+state.mistakes.push({
+id:Date.now()+Math.random(),
+type,
+data
+});
+
+if(state.mistakes.length>50){
+state.mistakes.shift();
+}
+}
+
+function renderStats(){
+
+const level=Math.floor(state.xp/100)+1;
+
+document.getElementById("level").textContent=level;
+document.getElementById("homeLevel").textContent=level;
+document.getElementById("xp").textContent=state.xp;
+document.getElementById("streak").textContent=state.streak;
+document.getElementById("mistakes").textContent=state.mistakes.length;
+
+const vals=Object.values(state.mastery);
+
+const average=Math.round(
+vals.reduce((a,b)=>a+b,0)/vals.length
+);
+
+document.getElementById("mastery").textContent=average+"%";
+
+document.getElementById("xpBar").style.width=(state.xp%100)+"%";
+
+const weakest=Object.entries(state.mastery)
+.sort((a,b)=>a[1]-b[1])[0];
+
+document.getElementById("weakTopic").textContent=
+TOPICS[weakest[0]]+" — "+weakest[1]+"%";
+}
+
+function go(id){
+
+document.querySelectorAll("section")
+.forEach(s=>s.classList.remove("active"));
+
+document.getElementById(id)
+.classList.add("active");
+
+document.querySelectorAll("nav button")
+.forEach(b=>b.classList.toggle(
+"active",
+b.dataset.section===id
+));
+
+if(id==="mistake")renderMistakes();
+if(id==="masteryMap")renderMastery();
+}
+
+document.querySelectorAll("nav button")
+.forEach(button=>{
+button.onclick=()=>go(button.dataset.section);
+});
+
+function normalize(text){
+
+return text
+.toLowerCase()
+.replace(/\s/g,"")
+.replace(/[=.]/g,"")
+.replace(/dot/g,"")
+.replace(/²/g,"2")
+.replace(/Δ/g,"delta");
+}
+
+
+// TRANSLATOR
+
+function newTranslator(){
+
+currentTranslator=
+translators[Math.floor(Math.random()*translators.length)];
+
+document.getElementById("translatorBox").innerHTML=`
+<span class="badge">${TOPICS[currentTranslator.topic]}</span>
+
+<h3>Professor says:</h3>
+
+<p style="font-size:21px">
+"${currentTranslator.phrase}"
+</p>
+
+<button class="btn secondary" onclick="revealTranslator()">
+What should my brain think?
+</button>
+`;
+}
+
+function revealTranslator(){
+
+document.getElementById("translatorBox").innerHTML+=`
+<div class="feedback">
+
+<h3>🧠 Translation</h3>
+
+<p>${currentTranslator.answer}</p>
+
+<div class="row">
+
+<button class="btn bad" onclick="gradeTranslator(false)">
+That was new
+</button>
+
+<button class="btn good" onclick="gradeTranslator(true)">
+I recognized it
+</button>
+
+</div>
+
+</div>
+`;
+}
+
+function gradeTranslator(knew){
+
+if(knew){
+state.xp+=6;
+state.streak++;
+bump(currentTranslator.topic,3);
+}
+else{
+state.streak=0;
+bump(currentTranslator.topic,-1);
+}
+
+save();
+newTranslator();
+}
+
+
+// FLASHCARDS
+
+function populateTopics(){
+
+const select=document.getElementById("flashTopic");
+
+select.innerHTML=
+'<option value="all">All Topics</option>'+
+Object.entries(TOPICS)
+.map(([k,v])=>`<option value="${k}">${v}</option>`)
+.join("");
+
+select.onchange=newFlash;
+}
+
+function availableFlash(){
+
+const topic=
+document.getElementById("flashTopic").value;
+
+return topic==="all"
+? flashcards
+: flashcards.filter(c=>c[0]===topic);
+}
+
+function newFlash(){
+
+const set=availableFlash();
+
+flashIndex=Math.floor(Math.random()*set.length);
+flashFlipped=false;
+
+showFlash();
+}
+
+function showFlash(){
+
+const card=availableFlash()[flashIndex];
+
+document.getElementById("flashCard").innerHTML=
+flashFlipped
+? `<div><b>${card[2]}</b><small>${TOPICS[card[0]]} · click to see question</small></div>`
+: `<div><b>${card[1]}</b><small>${TOPICS[card[0]]} · answer before clicking</small></div>`;
+}
+
+function flipCard(){
+flashFlipped=!flashFlipped;
+showFlash();
+}
+
+function gradeFlash(result){
+
+const card=availableFlash()[flashIndex];
+
+if(result===2){
+state.xp+=6;
+state.streak++;
+bump(card[0],3);
+}
+else if(result===1){
+state.xp+=2;
+bump(card[0],1);
+}
+else{
+state.streak=0;
+bump(card[0],-2);
+addMistake("flash",card);
+}
+
+save();
+newFlash();
+}
+
+
+// RECALL
+
+function newRecall(){
+
+currentRecall=
+recallQuestions[Math.floor(Math.random()*recallQuestions.length)];
+
+document.getElementById("recallBox").innerHTML=`
+
+<span class="badge">
+${TOPICS[currentRecall.topic]}
+</span>
+
+<h3>${currentRecall.prompt}</h3>
+
+<input id="recallInput"
+placeholder="Type it from memory..."
+onkeydown="if(event.key==='Enter')checkRecall()">
+
+<br><br>
+
+<button class="btn" onclick="checkRecall()">
+Check Answer
+</button>
+`;
+
+setTimeout(()=>{
+document.getElementById("recallInput")?.focus();
+},50);
+}
+
+function checkRecall(){
+
+const raw=document.getElementById("recallInput").value;
+const user=normalize(raw);
+
+const correct=currentRecall.answers.some(a=>{
+const normalized=normalize(a);
+return user===normalized || user.includes(normalized);
+});
+
+if(correct){
+
+state.xp+=15;
+state.streak++;
+bump(currentRecall.topic,5);
+
+document.getElementById("recallBox").innerHTML=`
+
+<div class="feedback">
+
+<h3>✅ Pulled it from memory.</h3>
+
+<div class="formula">
+${currentRecall.show}
+</div>
+
+<br>
+
+<button class="btn" onclick="newRecall()">
+Next Recall
+</button>
+
+</div>
+`;
+
+}
+else{
+
+state.streak=0;
+bump(currentRecall.topic,-4);
+
+addMistake("recall",currentRecall);
+
+document.getElementById("recallBox").innerHTML=`
+
+<div class="feedback">
+
+<h3>❌ Lock this one in.</h3>
+
+<p>The answer:</p>
+
+<div class="formula">
+${currentRecall.show}
+</div>
+
+<p>
+Say it out loud once before continuing.
+</p>
+
+<button class="btn" onclick="newRecall()">
+Try Another
+</button>
+
+</div>
+`;
+
+}
+
+save();
+}
+
+
+// QUIZ
+
+function startQuiz(){
+
+quizRun=[...quizQuestions]
+.sort(()=>Math.random()-.5)
+.slice(0,10);
+
+quizIndex=0;
+quizScore=0;
+
+document.getElementById("quizStart").style.display="none";
+
+showQuiz();
+}
+
+function showQuiz(){
+
+const box=document.getElementById("quizBox");
+
+if(quizIndex>=quizRun.length){
+
+box.innerHTML=`
+
+<div class="feedback">
+
+<h3>Round complete: ${quizScore}/10</h3>
+
+<p>
+${
+quizScore>=9
+?"🔥 Lecture-ready."
+:quizScore>=7
+?"Solid. Review whatever you missed."
+:"Head to the Mistake Vault and Recall Mode."
+}
+</p>
+
+</div>
+`;
+
+const start=document.getElementById("quizStart");
+start.style.display="inline-block";
+start.textContent="Another 10";
+
+return;
+}
+
+const q=quizRun[quizIndex];
+
+box.innerHTML=`
+
+<div class="challenge">
+
+<span class="badge">
+${TOPICS[q.topic]}
+</span>
+
+<p class="muted">
+Question ${quizIndex+1}/10
+</p>
+
+<h3>${q.q}</h3>
+
+${q.choices.map((choice,i)=>`
+<button class="choice" onclick="answerQuiz(${i})">
+${choice}
+</button>
+`).join("")}
+
+</div>
+`;
+}
+
+function answerQuiz(index){
+
+const q=quizRun[quizIndex];
+
+const correct=index===q.answer;
+
+if(correct){
+
+quizScore++;
+state.xp+=10;
+state.streak++;
+bump(q.topic,4);
+
+}
+else{
+
+state.streak=0;
+bump(q.topic,-4);
+addMistake("quiz",q);
+
+}
+
+save();
+
+document.getElementById("quizBox").innerHTML=`
+
+<div class="feedback">
+
+<h3>
+${correct?"✅ Correct":"❌ Professor trap"}
+</h3>
+
+<p>
+Correct answer:
+<b>${q.choices[q.answer]}</b>
+</p>
+
+<button class="btn" onclick="quizIndex++;showQuiz()">
+Next
+</button>
+
+</div>
+`;
+}
+
+
+// TEACH IT
+
+function newTeach(){
+
+currentTeach=
+teachQuestions[Math.floor(Math.random()*teachQuestions.length)];
+
+document.getElementById("teachBox").innerHTML=`
+
+<span class="badge">
+${TOPICS[currentTeach[0]]}
+</span>
+
+<h3>${currentTeach[1]}</h3>
+
+<textarea id="teachInput"
+placeholder="Explain it like a normal person..."></textarea>
+
+<br><br>
+
+<button class="btn" onclick="revealTeach()">
+Compare My Explanation
+</button>
+`;
+}
+
+function revealTeach(){
+
+document.getElementById("teachBox").innerHTML+=`
+
+<div class="feedback">
+
+<h3>A strong explanation:</h3>
+
+<p>${currentTeach[2]}</p>
+
+<div class="row">
+
+<button class="btn bad" onclick="gradeTeach(false)">
+Mine missed the point
+</button>
+
+<button class="btn good" onclick="gradeTeach(true)">
+Mine had the idea
+</button>
+
+</div>
+
+</div>
+`;
+}
+
+function gradeTeach(good){
+
+if(good){
+state.xp+=12;
+state.streak++;
+bump(currentTeach[0],5);
+}
+else{
+state.streak=0;
+bump(currentTeach[0],-2);
+}
+
+save();
+newTeach();
+}
+
+
+// FORMULA FORGE
+
+function newFormula(){
+
+currentFormula=
+formulas[Math.floor(Math.random()*formulas.length)];
+
+document.getElementById("formulaBox").innerHTML=`
+
+<h3>${currentFormula[0]}</h3>
+
+<div class="formula">
+${currentFormula[1]}
+</div>
+
+<p>
+<b>When do I use this?</b>
+</p>
+
+<p>${currentFormula[2]}</p>
+
+`;
+}
+
+
+// BOSSES
+
+function newBoss(){
+
+currentBoss=
+bosses[Math.floor(Math.random()*bosses.length)];
+
+document.getElementById("bossBox").innerHTML=`
+
+<span class="badge">
+${TOPICS[currentBoss.topic]}
+</span>
+
+<h3>👹 ${currentBoss.title}</h3>
+
+<p>${currentBoss.text}</p>
+
+${currentBoss.choices.map((c,i)=>`
+<button class="choice" onclick="answerBoss(${i})">
+${c}
+</button>
+`).join("")}
+`;
+}
+
+function answerBoss(index){
+
+const correct=index===currentBoss.answer;
+
+if(correct){
+
+state.xp+=25;
+state.streak++;
+bump(currentBoss.topic,7);
+
+}
+else{
+
+state.streak=0;
+bump(currentBoss.topic,-5);
+
+addMistake("boss",currentBoss);
+}
+
+save();
+
+document.getElementById("bossBox").innerHTML=`
+
+<div class="feedback">
+
+<h3>
+${correct
+?"🏆 BOSS DEFEATED +25 XP"
+:"💀 Boss survived"}
+</h3>
+
+<p>${currentBoss.why}</p>
+
+<button class="btn" onclick="newBoss()">
+Next Boss
+</button>
+
+</div>
+`;
+}
+
+
+// MISTAKE VAULT
+
+function renderMistakes(){
+
+const box=document.getElementById("mistakeBox");
+
+if(!state.mistakes.length){
+
+box.innerHTML=`
+
+<div class="feedback">
+
+<h3>🏆 Vault Empty</h3>
+
+<p>
+Nothing currently needs emergency review.
+</p>
+
+</div>
+`;
+
+return;
+}
+
+box.innerHTML=state.mistakes
+.slice()
+.reverse()
+.map((m,index)=>{
+
+let question="";
+let answer="";
+
+if(m.type==="quiz"){
+
+question=m.data.q;
+answer=m.data.choices[m.data.answer];
+
+}
+
+else if(m.type==="boss"){
+
+question=m.data.text;
+answer=m.data.choices[m.data.answer];
+
+}
+
+else if(m.type==="recall"){
+
+question=m.data.prompt;
+answer=m.data.show;
+
+}
+
+else if(m.type==="flash"){
+
+question=m.data[1];
+answer=m.data[2];
+
+}
+
+return `
+
+<div class="challenge">
+
+<span class="badge">
+${m.type.toUpperCase()}
+</span>
+
+<h3>${question}</h3>
+
+<details>
+
+<summary>Reveal answer</summary>
+
+<p>${answer}</p>
+
+</details>
+
+<br>
+
+<button
+class="btn good"
+onclick="clearMistake(${state.mistakes.length-1-index})">
+I know this now
+</button>
+
+</div>
+`;
+
+}).join("");
+}
+
+function clearMistake(index){
+
+state.mistakes.splice(index,1);
+state.xp+=5;
+
+save();
+}
+
+
+// MASTERY
+
+function renderMastery(){
+
+const box=document.getElementById("masteryList");
+
+box.innerHTML=
+Object.entries(state.mastery)
+.sort((a,b)=>a[1]-b[1])
+.map(([topic,value])=>`
+
+<div class="topic">
+
+<div class="topic-header">
+
+<span>${TOPICS[topic]}</span>
+
+<b>${value}%</b>
+
+</div>
+
+<div class="progress">
+
+<div style="width:${value}%"></div>
+
+</div>
+
+</div>
+
+`).join("");
+}
+
+
+// START
+
+populateTopics();
+
+renderStats();
+renderMastery();
+renderMistakes();
+
+newTranslator();
+newFlash();
+newRecall();
+newTeach();
+newFormula();
+newBoss();
+
+</script>
+
+</body>
+</html>
